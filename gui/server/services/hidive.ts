@@ -21,8 +21,7 @@ class HidiveHandler extends Base implements MessageHandler {
 	}
 
 	public async checkToken(): Promise<CheckTokenResponse> {
-		//TODO: implement proper method to check token
-		return { isOk: true, value: undefined };
+		return this.hidive.isAuthenticated() ? { isOk: true, value: undefined } : { isOk: false, reason: new Error('Authentication required') };
 	}
 
 	public async search(data: SearchData): Promise<SearchResponse> {
