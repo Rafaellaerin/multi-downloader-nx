@@ -546,6 +546,8 @@ export default class Crunchy implements ServiceClass {
 			/*if (ifNeeded)
         return;*/
 			if (!(Date.now() > new Date(this.token.expires).getTime()) && ifNeeded) {
+				// A valid token can still lack CMS authorization after interactive login.
+				await this.getCMStoken(true);
 				return;
 			} else {
 				//console.info('[WARN] The token has expired compleatly. I will try to refresh the token anyway, but you might have to reauth.');
