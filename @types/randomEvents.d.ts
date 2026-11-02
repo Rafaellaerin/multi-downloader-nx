@@ -1,3 +1,4 @@
+import type { ServiceName } from './ws';
 import { ExtendedProgress, QueueItem } from './messageHandler';
 
 export type RandomEvents = {
