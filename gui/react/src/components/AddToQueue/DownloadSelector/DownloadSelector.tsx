@@ -24,21 +24,39 @@ const DownloadSelector: React.FC<DownloadSelectorProps> = ({ onFinish }) => {
 			type: 'downloadOptions',
 			payload: { ...options, ...data }
 		});
+	const storeRef = React.useRef(store);
+	storeRef.current = store;
 	React.useEffect(() => {
 		if (!msg?.serviceReady) return;
 		let active = true;
-		void Promise.all([msg.availableDubCodes(), msg.availableSubCodes()])
-			.then(([dubs, subs]) => {
-				if (!active) return;
-				setAvailableDubs(dubs);
-				setAvailableSubs(subs);
-			})
-			.catch((error) => {
-				if (active) enqueueSnackbar(error instanceof Error ? error.message : String(error), { variant: 'error' });
-			});
-		return () => {
-			active = false;
-		};
+		const service = msg.service;
+		void Promise.all([
+			msg.availableDubCodes(), msg.availableSubCodes(),
+			msg.handleDefault('dubLang'), msg.handleDefault('dlsubs'),
+			msg.handleDefault('q'), msg.handleDefault('fileName'), msg.handleDefault('dlVideoOnce')
+		]).then(([dubs, subs, defaultDub, defaultSub, quality, fileName, videoOnce]) => {
+			if (!active) return;
+			setAvailableDubs(dubs);
+			setAvailableSubs(subs);
+			if (service && !storeRef.current.optionsByService[service]) {
+				const previous = storeRef.current.downloadOptions;
+				const dubLang = Array.isArray(defaultDub) ? defaultDub.filter((code: string) => dubs.includes(code)) : [];
+				dispatch({
+					type: 'downloadOptions',
+					payload: {
+						...previous,
+						dubLang: dubLang.length ? dubLang : [dubs[0] || 'jpn'],
+						dlsubs: Array.isArray(defaultSub) ? defaultSub : ['all'],
+						q: Number.isInteger(quality) && quality >= 0 && quality <= 10 ? quality : 0,
+						fileName: typeof fileName === 'string' ? fileName : '',
+						dlVideoOnce: !!videoOnce
+					}
+				});
+			}
+		}).catch((error) => {
+			if (active) enqueueSnackbar(error instanceof Error ? error.message : String(error), { variant: 'error' });
+		});
+		return () => { active = false; };
 	}, [msg?.service, msg?.serviceReady]);
 
 	const add = async () => {
