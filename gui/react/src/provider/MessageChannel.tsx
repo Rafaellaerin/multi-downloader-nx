@@ -1,7 +1,7 @@
 import React from 'react';
 import { MessageHandler } from '../../../../@types/messageHandler';
 import useStore from '../hooks/useStore';
-import type { MessageTypes, WSMessage, WSMessageWithID } from '../../../../@types/ws';
+import type { MessageTypes, ServiceOverview, ServiceName, WSMessage, WSMessageWithID } from '../../../../@types/ws';
 import type { Handler, RandomEvent, RandomEvents } from '../../../../@types/randomEvents';
 import { Avatar, Box, Button, TextField, Typography } from '@mui/material';
 import { v4 } from 'uuid';
@@ -9,7 +9,14 @@ import { useSnackbar } from 'notistack';
 import { LockOutlined, PowerSettingsNew } from '@mui/icons-material';
 import { GUIConfig } from '../../../../modules/module.cfg-loader';
 
-export type FrontEndMessages = MessageHandler & { randomEvents: RandomEventHandler; logout: () => Promise<boolean>; serviceReady: boolean };
+export type FrontEndMessages = MessageHandler & {
+	randomEvents: RandomEventHandler;
+	logout: () => Promise<boolean>;
+	serviceReady: boolean;
+	service?: ServiceName;
+	getOverview: () => Promise<Record<ServiceName, ServiceOverview>>;
+	resolveDetailed: (data: Parameters<MessageHandler['resolveItems']>[0]) => Promise<{ ok: boolean; added: number; message?: string }>;
+};
 
 export class RandomEventHandler {
 	private handler: {
@@ -184,27 +191,18 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 		}
 		let cancelled = false;
 		setServiceReady(false);
-		(async () => {
-			try {
-				const current = await messageAndResponse(socket, { name: 'type', data: undefined });
-				if (cancelled) return;
-				if (current.data && current.data !== store.service) {
-					dispatch({ type: 'service', payload: current.data });
-					return;
+		void messageAndResponse(socket, { name: 'setup', data: store.service })
+			.then((response) => {
+				if (!cancelled) {
+					if (!response.data) throw new Error('Could not initialize the selected service.');
+					setServiceReady(true);
 				}
-				if (!current.data) {
-					const setup = await messageAndResponse(socket, { name: 'setup', data: store.service });
-					if (!setup.data) throw new Error('Unable to initialize the selected service.');
-				}
-				if (!cancelled) setServiceReady(true);
-			} catch (error) {
+			})
+			.catch((error) => {
 				if (!cancelled) enqueueSnackbar(error instanceof Error ? error.message : String(error), { variant: 'error' });
-			}
-		})();
-		return () => {
-			cancelled = true;
-		};
-	}, [store.service, dispatch, socket]);
+			});
+		return () => { cancelled = true; };
+	}, [store.service, socket]);
 
 	React.useEffect(() => {
 		if (usePassword === 'no' && !socket && !connecting.current) connect();
@@ -234,34 +232,39 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 			!socket
 				? undefined
 				: {
-						name: 'default',
+						name: store.service ?? 'default',
+						service: store.service,
 						serviceReady,
-						auth: async (data) => (await messageAndResponse(socket, { name: 'auth', data })).data,
+						getOverview: async () => (await messageAndResponse(socket, { name: 'overview', data: undefined })).data,
+						resolveDetailed: async (data) => (await messageAndResponse(socket, { name: 'resolveDetailed', data, service: store.service })).data,
+						auth: async (data) => (await messageAndResponse(socket, { name: 'auth', data , service: store.service})).data,
 						version: async () => (await messageAndResponse(socket, { name: 'version', data: undefined })).data,
-						checkToken: async () => (await messageAndResponse(socket, { name: 'checkToken', data: undefined })).data,
-						search: async (data) => (await messageAndResponse(socket, { name: 'search', data })).data,
-						handleDefault: async (data) => (await messageAndResponse(socket, { name: 'default', data })).data,
-						availableDubCodes: async () => (await messageAndResponse(socket, { name: 'availableDubCodes', data: undefined })).data,
-						availableSubCodes: async () => (await messageAndResponse(socket, { name: 'availableSubCodes', data: undefined })).data,
-						resolveItems: async (data) => (await messageAndResponse(socket, { name: 'resolveItems', data })).data,
-						listEpisodes: async (data) => (await messageAndResponse(socket, { name: 'listEpisodes', data })).data,
+						checkToken: async () => (await messageAndResponse(socket, { name: 'checkToken', data: undefined , service: store.service})).data,
+						search: async (data) => (await messageAndResponse(socket, { name: 'search', data , service: store.service})).data,
+						handleDefault: async (data) => (await messageAndResponse(socket, { name: 'default', data , service: store.service})).data,
+						availableDubCodes: async () => (await messageAndResponse(socket, { name: 'availableDubCodes', data: undefined , service: store.service})).data,
+						availableSubCodes: async () => (await messageAndResponse(socket, { name: 'availableSubCodes', data: undefined , service: store.service})).data,
+						resolveItems: async (data) => (await messageAndResponse(socket, { name: 'resolveItems', data , service: store.service})).data,
+						listEpisodes: async (data) => (await messageAndResponse(socket, { name: 'listEpisodes', data , service: store.service})).data,
 						randomEvents: randomEventHandler,
-						downloadItem: (data) => messageAndResponse(socket, { name: 'downloadItem', data }),
-						isDownloading: async () => (await messageAndResponse(socket, { name: 'isDownloading', data: undefined })).data,
-						openFolder: async (data) => messageAndResponse(socket, { name: 'openFolder', data }),
-						logout: async () => (await messageAndResponse(socket, { name: 'changeProvider', data: undefined })).data,
-						openFile: async (data) => await messageAndResponse(socket, { name: 'openFile', data }),
-						openURL: async (data) => await messageAndResponse(socket, { name: 'openURL', data }),
-						getQueue: async () => (await messageAndResponse(socket, { name: 'getQueue', data: undefined })).data,
-						removeFromQueue: async (data) => await messageAndResponse(socket, { name: 'removeFromQueue', data }),
-						clearQueue: async () => await messageAndResponse(socket, { name: 'clearQueue', data: undefined }),
-						setDownloadQueue: async (data) => await messageAndResponse(socket, { name: 'setDownloadQueue', data }),
-						getDownloadQueue: async () => (await messageAndResponse(socket, { name: 'getDownloadQueue', data: undefined })).data
+						downloadItem: (data) => messageAndResponse(socket, { name: 'downloadItem', data , service: store.service}),
+						isDownloading: async () => (await messageAndResponse(socket, { name: 'isDownloading', data: undefined , service: store.service})).data,
+						openFolder: async (data) => messageAndResponse(socket, { name: 'openFolder', data , service: store.service}),
+						logout: async () => (await messageAndResponse(socket, { name: 'changeProvider', data: undefined , service: store.service})).data,
+						openFile: async (data) => await messageAndResponse(socket, { name: 'openFile', data , service: store.service}),
+						openURL: async (data) => await messageAndResponse(socket, { name: 'openURL', data , service: store.service}),
+						getQueue: async () => (await messageAndResponse(socket, { name: 'getQueue', data: undefined , service: store.service})).data,
+						removeFromQueue: async (data) => await messageAndResponse(socket, { name: 'removeFromQueue', data , service: store.service}),
+						clearQueue: async () => await messageAndResponse(socket, { name: 'clearQueue', data: undefined , service: store.service}),
+						setDownloadQueue: async (data) => await messageAndResponse(socket, { name: 'setDownloadQueue', data , service: store.service}),
+						getDownloadQueue: async () => (await messageAndResponse(socket, { name: 'getDownloadQueue', data: undefined , service: store.service})).data
 					},
-		[socket, serviceReady, randomEventHandler]
+		[socket, store.service, serviceReady, randomEventHandler]
 	);
 
-	if (usePassword === 'waiting') return <></>;
+	if (usePassword === 'waiting' || isSetup === 'waiting') {
+		return <Box sx={{ minHeight: '80vh', display: 'grid', placeItems: 'center' }}><Typography color="text.secondary">Connecting to the download manager…</Typography></Box>;
+	}
 
 	if (socket === undefined) {
 		if (usePassword === 'no') return <></>;
