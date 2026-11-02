@@ -12,14 +12,17 @@ const AddToQueue: React.FC = () => {
 	return (
 		<Box>
 			<EpisodeListing />
-			<Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="md" scroll="paper"
-				slotProps={{ paper: { sx: { maxHeight: 'min(92vh, 980px)' } } }}>
+			<Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="md" scroll="paper" slotProps={{ paper: { sx: { maxHeight: 'min(92vh, 980px)' } } }}>
 				<Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ py: 2.5, px: { xs: 2.5, sm: 3 } }}>
 					<Box>
 						<Typography variant="h5">Add episodes</Typography>
-						<Typography variant="body2" color="text.secondary" sx={{ mt: .5 }}>Search, choose your episodes and configure download preferences.</Typography>
+						<Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+							Search, choose your episodes and configure download preferences.
+						</Typography>
 					</Box>
-					<IconButton aria-label="Close dialog" onClick={() => setOpen(false)}><CloseRounded /></IconButton>
+					<IconButton aria-label="Close dialog" onClick={() => setOpen(false)}>
+						<CloseRounded />
+					</IconButton>
 				</Stack>
 				<Divider />
 				<Box sx={{ px: { xs: 2.5, sm: 3 }, py: 2.5, overflowY: 'auto' }}>
@@ -27,7 +30,9 @@ const AddToQueue: React.FC = () => {
 					<DownloadSelector onFinish={() => setOpen(false)} />
 				</Box>
 			</Dialog>
-			<Button startIcon={<AddRounded />} variant="contained" disabled={!messageHandler?.serviceReady} onClick={() => setOpen(true)}>Add episodes</Button>
+			<Button startIcon={<AddRounded />} variant="contained" disabled={!messageHandler?.serviceReady} onClick={() => setOpen(true)}>
+				Add episodes
+			</Button>
 		</Box>
 	);
 };

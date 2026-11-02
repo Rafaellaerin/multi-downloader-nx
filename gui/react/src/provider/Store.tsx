@@ -33,9 +33,18 @@ export type StoreAction<T extends keyof StoreState> = {
 };
 
 const defaultOptions: DownloadOptions = {
-	id: '', q: 0, e: '', dubLang: ['jpn'], dlsubs: ['all'],
-	fileName: '', dlVideoOnce: false, all: false, but: false,
-	noaudio: false, novids: false, simul: false
+	id: '',
+	q: 0,
+	e: '',
+	dubLang: ['jpn'],
+	dlsubs: ['all'],
+	fileName: '',
+	dlVideoOnce: false,
+	all: false,
+	but: false,
+	noaudio: false,
+	novids: false,
+	simul: false
 };
 const initialState: StoreState = {
 	service: undefined,
@@ -69,7 +78,9 @@ const Reducer = <T extends keyof StoreState>(state: StoreState, action: StoreAct
 		const optionsByService = { ...state.optionsByService };
 		if (state.service) optionsByService[state.service] = state.downloadOptions;
 		return {
-			...state, service: next, optionsByService,
+			...state,
+			service: next,
+			optionsByService,
 			downloadOptions: { ...defaultOptions, ...(next ? optionsByService[next] : {}) },
 			episodeListing: []
 		};
@@ -89,10 +100,13 @@ const Store: FCWithChildren = ({ children }) => {
 	const [state, dispatch] = React.useReducer(Reducer, initialState, restored);
 	React.useEffect(() => {
 		try {
-			localStorage.setItem(STORAGE_KEY, JSON.stringify({
-				service: state.service,
-				optionsByService: state.optionsByService
-			}));
+			localStorage.setItem(
+				STORAGE_KEY,
+				JSON.stringify({
+					service: state.service,
+					optionsByService: state.optionsByService
+				})
+			);
 		} catch {
 			// Private browsing can disable localStorage.
 		}

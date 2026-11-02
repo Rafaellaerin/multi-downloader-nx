@@ -19,11 +19,20 @@ const AuthButton: React.FC = () => {
 		if (!msg?.serviceReady) return;
 		let active = true;
 		setChecking(true);
-		void msg.checkToken().then((res) => {
-			if (active) setAuthed(res.isOk);
-		}).catch(() => { if (active) setAuthed(false); })
-			.finally(() => { if (active) setChecking(false); });
-		return () => { active = false; };
+		void msg
+			.checkToken()
+			.then((res) => {
+				if (active) setAuthed(res.isOk);
+			})
+			.catch(() => {
+				if (active) setAuthed(false);
+			})
+			.finally(() => {
+				if (active) setChecking(false);
+			});
+		return () => {
+			active = false;
+		};
 	}, [msg?.service, msg?.serviceReady]);
 
 	const submit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -50,22 +59,57 @@ const AuthButton: React.FC = () => {
 		<>
 			<Dialog open={open} onClose={() => !pending && setOpen(false)} fullWidth maxWidth="xs">
 				<Box component="form" onSubmit={(event) => void submit(event)}>
-					<DialogTitle sx={{ pt: 3, pb: 0 }}><Typography variant="h5">Connect your account</Typography></DialogTitle>
+					<DialogTitle sx={{ pt: 3, pb: 0 }}>
+						<Typography variant="h5">Connect your account</Typography>
+					</DialogTitle>
 					<DialogContent sx={{ pt: '20px !important' }}>
-						<Typography color="text.secondary" variant="body2" sx={{ mb: 2 }}>Sign in to {msg?.service || 'this platform'} before adding protected episodes. Your credentials are not saved in browser preferences.</Typography>
+						<Typography color="text.secondary" variant="body2" sx={{ mb: 2 }}>
+							Sign in to {msg?.service || 'this platform'} before adding protected episodes. Your credentials are not saved in browser preferences.
+						</Typography>
 						<Stack spacing={2}>
-							<TextField size="small" label="Email or username" autoComplete="username" fullWidth required value={username} onChange={(e) => setUsername(e.target.value)} disabled={pending} />
-							<TextField size="small" label="Password" type="password" autoComplete="current-password" fullWidth required value={password} onChange={(e) => setPassword(e.target.value)} disabled={pending} />
+							<TextField
+								size="small"
+								label="Email or username"
+								autoComplete="username"
+								fullWidth
+								required
+								value={username}
+								onChange={(e) => setUsername(e.target.value)}
+								disabled={pending}
+							/>
+							<TextField
+								size="small"
+								label="Password"
+								type="password"
+								autoComplete="current-password"
+								fullWidth
+								required
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								disabled={pending}
+							/>
 							{error && <Alert severity="error">{error}</Alert>}
 						</Stack>
 					</DialogContent>
 					<DialogActions sx={{ px: 3, pb: 3 }}>
-						<Button variant="text" color="inherit" disabled={pending} onClick={() => setOpen(false)}>Cancel</Button>
-						<Button type="submit" variant="contained" disabled={pending} startIcon={pending ? <CircularProgress size={16} /> : <LockOutlined />}>Sign in</Button>
+						<Button variant="text" color="inherit" disabled={pending} onClick={() => setOpen(false)}>
+							Cancel
+						</Button>
+						<Button type="submit" variant="contained" disabled={pending} startIcon={pending ? <CircularProgress size={16} /> : <LockOutlined />}>
+							Sign in
+						</Button>
 					</DialogActions>
 				</Box>
 			</Dialog>
-			<Button variant="outlined" disabled={!msg?.serviceReady || checking} startIcon={authed ? <CheckCircleOutlineRounded /> : <LockOutlined />} onClick={() => { setError(undefined); setOpen(true); }}>
+			<Button
+				variant="outlined"
+				disabled={!msg?.serviceReady || checking}
+				startIcon={authed ? <CheckCircleOutlineRounded /> : <LockOutlined />}
+				onClick={() => {
+					setError(undefined);
+					setOpen(true);
+				}}
+			>
 				{checking ? 'Checking account…' : authed ? 'Connected account' : 'Connect account'}
 			</Button>
 		</>

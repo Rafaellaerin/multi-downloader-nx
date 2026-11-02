@@ -28,9 +28,12 @@ const useDownloadManager = () => {
 		messageHandler.randomEvents.on('progress', handler);
 		messageHandler.randomEvents.on('current', currentHandler);
 		messageHandler.randomEvents.on('finish', finishHandler);
-		void messageHandler.getOverview().then((all) => {
-			if (active) setCurrent(all[service].current);
-		}).catch(() => undefined);
+		void messageHandler
+			.getOverview()
+			.then((all) => {
+				if (active) setCurrent(all[service].current);
+			})
+			.catch(() => undefined);
 		return () => {
 			active = false;
 			messageHandler.randomEvents.removeListener('progress', handler);

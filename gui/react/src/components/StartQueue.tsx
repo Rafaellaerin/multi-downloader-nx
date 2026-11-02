@@ -13,9 +13,17 @@ const StartQueueButton: React.FC = () => {
 		setStarted(false);
 		if (!msg?.serviceReady) return;
 		let active = true;
-		void msg.getDownloadQueue().then((value) => { if (active) setStarted(value); })
-			.catch((error) => { if (active) enqueueSnackbar(error instanceof Error ? error.message : String(error), { variant: 'error' }); });
-		return () => { active = false; };
+		void msg
+			.getDownloadQueue()
+			.then((value) => {
+				if (active) setStarted(value);
+			})
+			.catch((error) => {
+				if (active) enqueueSnackbar(error instanceof Error ? error.message : String(error), { variant: 'error' });
+			});
+		return () => {
+			active = false;
+		};
 	}, [msg?.service, msg?.serviceReady]);
 	const change = async () => {
 		if (!msg?.serviceReady || pending) return;
@@ -23,7 +31,7 @@ const StartQueueButton: React.FC = () => {
 		try {
 			await msg.setDownloadQueue(!started);
 			setStarted(!started);
-			if (started && await msg.isDownloading()) enqueueSnackbar('Current download will finish before the queue pauses.', { variant: 'info' });
+			if (started && (await msg.isDownloading())) enqueueSnackbar('Current download will finish before the queue pauses.', { variant: 'info' });
 		} catch (error) {
 			enqueueSnackbar(error instanceof Error ? error.message : String(error), { variant: 'error' });
 		} finally {

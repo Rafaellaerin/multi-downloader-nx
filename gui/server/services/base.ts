@@ -96,8 +96,12 @@ export default class Base {
 	public async getQueue(): Promise<QueueItem[]> {
 		return [...this.queue];
 	}
-	public getCurrent(): QueueItem | undefined { return this.current; }
-	public getAddedCount(): number { return this.addedTotal; }
+	public getCurrent(): QueueItem | undefined {
+		return this.current;
+	}
+	public getAddedCount(): number {
+		return this.addedTotal;
+	}
 
 	public async removeFromQueue(index: number) {
 		if (!Number.isInteger(index) || index < 0 || index >= this.queue.length) return;

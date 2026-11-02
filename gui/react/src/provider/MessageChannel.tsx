@@ -201,7 +201,9 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 			.catch((error) => {
 				if (!cancelled) enqueueSnackbar(error instanceof Error ? error.message : String(error), { variant: 'error' });
 			});
-		return () => { cancelled = true; };
+		return () => {
+			cancelled = true;
+		};
 	}, [store.service, socket]);
 
 	React.useEffect(() => {
@@ -237,46 +239,61 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 						serviceReady,
 						getOverview: async () => (await messageAndResponse(socket, { name: 'overview', data: undefined })).data,
 						resolveDetailed: async (data) => (await messageAndResponse(socket, { name: 'resolveDetailed', data, service: store.service })).data,
-						auth: async (data) => (await messageAndResponse(socket, { name: 'auth', data , service: store.service})).data,
+						auth: async (data) => (await messageAndResponse(socket, { name: 'auth', data, service: store.service })).data,
 						version: async () => (await messageAndResponse(socket, { name: 'version', data: undefined })).data,
-						checkToken: async () => (await messageAndResponse(socket, { name: 'checkToken', data: undefined , service: store.service})).data,
-						search: async (data) => (await messageAndResponse(socket, { name: 'search', data , service: store.service})).data,
-						handleDefault: async (data) => (await messageAndResponse(socket, { name: 'default', data , service: store.service})).data,
-						availableDubCodes: async () => (await messageAndResponse(socket, { name: 'availableDubCodes', data: undefined , service: store.service})).data,
-						availableSubCodes: async () => (await messageAndResponse(socket, { name: 'availableSubCodes', data: undefined , service: store.service})).data,
-						resolveItems: async (data) => (await messageAndResponse(socket, { name: 'resolveItems', data , service: store.service})).data,
-						listEpisodes: async (data) => (await messageAndResponse(socket, { name: 'listEpisodes', data , service: store.service})).data,
+						checkToken: async () => (await messageAndResponse(socket, { name: 'checkToken', data: undefined, service: store.service })).data,
+						search: async (data) => (await messageAndResponse(socket, { name: 'search', data, service: store.service })).data,
+						handleDefault: async (data) => (await messageAndResponse(socket, { name: 'default', data, service: store.service })).data,
+						availableDubCodes: async () => (await messageAndResponse(socket, { name: 'availableDubCodes', data: undefined, service: store.service })).data,
+						availableSubCodes: async () => (await messageAndResponse(socket, { name: 'availableSubCodes', data: undefined, service: store.service })).data,
+						resolveItems: async (data) => (await messageAndResponse(socket, { name: 'resolveItems', data, service: store.service })).data,
+						listEpisodes: async (data) => (await messageAndResponse(socket, { name: 'listEpisodes', data, service: store.service })).data,
 						randomEvents: randomEventHandler,
-						downloadItem: (data) => messageAndResponse(socket, { name: 'downloadItem', data , service: store.service}),
-						isDownloading: async () => (await messageAndResponse(socket, { name: 'isDownloading', data: undefined , service: store.service})).data,
-						openFolder: async (data) => messageAndResponse(socket, { name: 'openFolder', data , service: store.service}),
-						logout: async () => (await messageAndResponse(socket, { name: 'changeProvider', data: undefined , service: store.service})).data,
-						openFile: async (data) => await messageAndResponse(socket, { name: 'openFile', data , service: store.service}),
-						openURL: async (data) => await messageAndResponse(socket, { name: 'openURL', data , service: store.service}),
-						getQueue: async () => (await messageAndResponse(socket, { name: 'getQueue', data: undefined , service: store.service})).data,
-						removeFromQueue: async (data) => await messageAndResponse(socket, { name: 'removeFromQueue', data , service: store.service}),
-						clearQueue: async () => await messageAndResponse(socket, { name: 'clearQueue', data: undefined , service: store.service}),
-						setDownloadQueue: async (data) => await messageAndResponse(socket, { name: 'setDownloadQueue', data , service: store.service}),
-						getDownloadQueue: async () => (await messageAndResponse(socket, { name: 'getDownloadQueue', data: undefined , service: store.service})).data
+						downloadItem: (data) => messageAndResponse(socket, { name: 'downloadItem', data, service: store.service }),
+						isDownloading: async () => (await messageAndResponse(socket, { name: 'isDownloading', data: undefined, service: store.service })).data,
+						openFolder: async (data) => messageAndResponse(socket, { name: 'openFolder', data, service: store.service }),
+						logout: async () => (await messageAndResponse(socket, { name: 'changeProvider', data: undefined, service: store.service })).data,
+						openFile: async (data) => await messageAndResponse(socket, { name: 'openFile', data, service: store.service }),
+						openURL: async (data) => await messageAndResponse(socket, { name: 'openURL', data, service: store.service }),
+						getQueue: async () => (await messageAndResponse(socket, { name: 'getQueue', data: undefined, service: store.service })).data,
+						removeFromQueue: async (data) => await messageAndResponse(socket, { name: 'removeFromQueue', data, service: store.service }),
+						clearQueue: async () => await messageAndResponse(socket, { name: 'clearQueue', data: undefined, service: store.service }),
+						setDownloadQueue: async (data) => await messageAndResponse(socket, { name: 'setDownloadQueue', data, service: store.service }),
+						getDownloadQueue: async () => (await messageAndResponse(socket, { name: 'getDownloadQueue', data: undefined, service: store.service })).data
 					},
 		[socket, store.service, serviceReady, randomEventHandler]
 	);
 
 	if (usePassword === 'waiting' || isSetup === 'waiting') {
-		return <Box sx={{ minHeight: '80vh', display: 'grid', placeItems: 'center' }}><Typography color="text.secondary">Connecting to the download manager…</Typography></Box>;
+		return (
+			<Box sx={{ minHeight: '80vh', display: 'grid', placeItems: 'center' }}>
+				<Typography color="text.secondary">Connecting to the download manager…</Typography>
+			</Box>
+		);
 	}
 
 	if (socket === undefined) {
-		if (usePassword === 'no') return <Box sx={{ minHeight: '80vh', display: 'grid', placeItems: 'center' }}><Typography color="text.secondary">Starting the local service…</Typography></Box>;
+		if (usePassword === 'no')
+			return (
+				<Box sx={{ minHeight: '80vh', display: 'grid', placeItems: 'center' }}>
+					<Typography color="text.secondary">Starting the local service…</Typography>
+				</Box>
+			);
 		return (
 			<Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', px: 2, py: 5 }}>
 				<Paper variant="outlined" sx={{ width: '100%', maxWidth: 460, p: { xs: 3, sm: 5 } }}>
-					<Avatar sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', mb: 3 }}><LockOutlined /></Avatar>
+					<Avatar sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', mb: 3 }}>
+						<LockOutlined />
+					</Avatar>
 					<Typography variant="h4">Unlock workspace</Typography>
-					<Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 3 }}>Enter the password you configured for this local server.</Typography>
+					<Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 3 }}>
+						Enter the password you configured for this local server.
+					</Typography>
 					<Box component="form" onSubmit={connect}>
 						<TextField name="password" label="Server password" size="small" type="password" autoComplete="current-password" fullWidth required />
-						<Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>Connect</Button>
+						<Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+							Connect
+						</Button>
 					</Box>
 				</Paper>
 			</Box>
@@ -286,18 +303,47 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 		return (
 			<Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', px: 2, py: 5 }}>
 				<Paper variant="outlined" sx={{ width: '100%', maxWidth: 550, p: { xs: 3, sm: 5 } }}>
-					<Avatar sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', mb: 3 }}><PowerSettingsNew /></Avatar>
-					<Typography variant="overline" color="text.secondary">First-time setup · Step 1 of 1</Typography>
-					<Typography variant="h4" sx={{ mb: 1 }}>Set up your workspace</Typography>
-					<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Choose a port and an optional server password. After restarting, you can connect multiple platforms from the sidebar.</Typography>
+					<Avatar sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', mb: 3 }}>
+						<PowerSettingsNew />
+					</Avatar>
+					<Typography variant="overline" color="text.secondary">
+						First-time setup · Step 1 of 1
+					</Typography>
+					<Typography variant="h4" sx={{ mb: 1 }}>
+						Set up your workspace
+					</Typography>
+					<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+						Choose a port and an optional server password. After restarting, you can connect multiple platforms from the sidebar.
+					</Typography>
 					<Box component="form" onSubmit={(event) => void setup(event)}>
 						<Stack spacing={2}>
-							<TextField size="small" name="port" type="number" label="Local server port" fullWidth required defaultValue={3000} inputProps={{ min: 1, max: 65535 }} />
-							<TextField size="small" name="password" type="password" label="Server password (optional)" autoComplete="new-password" fullWidth helperText="Recommended if the server can be reached from other devices." />
-							<Button type="submit" variant="contained" fullWidth>Save configuration</Button>
+							<TextField
+								size="small"
+								name="port"
+								type="number"
+								label="Local server port"
+								fullWidth
+								required
+								defaultValue={3000}
+								inputProps={{ min: 1, max: 65535 }}
+							/>
+							<TextField
+								size="small"
+								name="password"
+								type="password"
+								label="Server password (optional)"
+								autoComplete="new-password"
+								fullWidth
+								helperText="Recommended if the server can be reached from other devices."
+							/>
+							<Button type="submit" variant="contained" fullWidth>
+								Save configuration
+							</Button>
 						</Stack>
 					</Box>
-					<Typography variant="caption" color="text.secondary" sx={{ mt: 3, display: 'block' }}>The server must be restarted after you save these settings. Platform credentials are configured separately.</Typography>
+					<Typography variant="caption" color="text.secondary" sx={{ mt: 3, display: 'block' }}>
+						The server must be restarted after you save these settings. Platform credentials are configured separately.
+					</Typography>
 				</Paper>
 			</Box>
 		);

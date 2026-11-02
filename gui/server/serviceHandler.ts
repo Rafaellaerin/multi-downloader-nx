@@ -88,7 +88,9 @@ export default class ServiceHandler {
 			return {
 				ok: !!ok && added > 0,
 				added,
-				message: added ? undefined : 'No matching episodes found for this show and selected audio/episodes. Check your selection using “List episodes”, or choose Download all.'
+				message: added
+					? undefined
+					: 'No matching episodes found for this show and selected audio/episodes. Check your selection using “List episodes”, or choose Download all.'
 			};
 		};
 		this.ws.events.on('resolveItems', async ({ data, service }, respond) => respond((await resolve(service, data)).ok));

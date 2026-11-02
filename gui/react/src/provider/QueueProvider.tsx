@@ -22,11 +22,14 @@ const QueueProvider: FCWithChildren = ({ children }) => {
 			if (active) setQueue(event.data);
 		};
 		msg.randomEvents.on('queueChange', listener);
-		void msg.getQueue().then((items) => {
-			if (active && !receivedEvent) setQueue(items);
-		}).catch((error) => {
-			if (active) enqueueSnackbar(error instanceof Error ? error.message : 'Could not load the queue', { variant: 'error' });
-		});
+		void msg
+			.getQueue()
+			.then((items) => {
+				if (active && !receivedEvent) setQueue(items);
+			})
+			.catch((error) => {
+				if (active) enqueueSnackbar(error instanceof Error ? error.message : 'Could not load the queue', { variant: 'error' });
+			});
 		return () => {
 			active = false;
 			msg.randomEvents.removeListener('queueChange', listener);
