@@ -3,7 +3,7 @@ import { MessageHandler } from '../../../../@types/messageHandler';
 import useStore from '../hooks/useStore';
 import type { MessageTypes, ServiceOverview, ServiceName, WSMessage, WSMessageWithID } from '../../../../@types/ws';
 import type { Handler, RandomEvent, RandomEvents } from '../../../../@types/randomEvents';
-import { Avatar, Box, Button, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Button, Paper, Stack, TextField, Typography } from '@mui/material';
 import { v4 } from 'uuid';
 import { useSnackbar } from 'notistack';
 import { LockOutlined, PowerSettingsNew } from '@mui/icons-material';
@@ -91,7 +91,7 @@ async function messageAndResponse<T extends keyof MessageTypes>(socket: WebSocke
 }
 
 const MessageChannelProvider: FCWithChildren = ({ children }) => {
-	const [store, dispatch] = useStore();
+	const [store] = useStore();
 	const [socket, setSocket] = React.useState<undefined | WebSocket>();
 	const [serviceReady, setServiceReady] = React.useState(false);
 	const connecting = React.useRef(false);
@@ -267,49 +267,38 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 	}
 
 	if (socket === undefined) {
-		if (usePassword === 'no') return <></>;
+		if (usePassword === 'no') return <Box sx={{ minHeight: '80vh', display: 'grid', placeItems: 'center' }}><Typography color="text.secondary">Starting the local service…</Typography></Box>;
 		return (
-			<Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', justifyItems: 'center', alignItems: 'center' }}>
-				<Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-					<LockOutlined />
-				</Avatar>
-				<Typography component="h1" variant="h5" color="text.primary">
-					Login
-				</Typography>
-				<Box component="form" onSubmit={connect} sx={{ mt: 1 }}>
-					<TextField name="password" margin="normal" type="password" fullWidth variant="filled" required label={'Password'} />
-					<Button type="submit" variant="contained" sx={{ mt: 3, mb: 2 }} fullWidth>
-						Login
-					</Button>
-					<Typography color="text.secondary" align="center" component="p" variant="body2">
-						You need to login in order to use this tool.
-					</Typography>
-				</Box>
+			<Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', px: 2, py: 5 }}>
+				<Paper variant="outlined" sx={{ width: '100%', maxWidth: 460, p: { xs: 3, sm: 5 } }}>
+					<Avatar sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', mb: 3 }}><LockOutlined /></Avatar>
+					<Typography variant="h4">Unlock workspace</Typography>
+					<Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 3 }}>Enter the password you configured for this local server.</Typography>
+					<Box component="form" onSubmit={connect}>
+						<TextField name="password" label="Server password" size="small" type="password" autoComplete="current-password" fullWidth required />
+						<Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>Connect</Button>
+					</Box>
+				</Paper>
 			</Box>
 		);
 	}
-
 	if (isSetup === 'no') {
 		return (
-			<Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', justifyItems: 'center', alignItems: 'center' }}>
-				<Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-					<PowerSettingsNew />
-				</Avatar>
-				<Typography component="h1" variant="h5" color="text.primary">
-					Confirm
-				</Typography>
-				<Box component="form" onSubmit={setup} sx={{ mt: 1 }}>
-					<TextField name="port" margin="normal" type="number" fullWidth variant="filled" required label={'Port'} defaultValue={3000} />
-					<TextField name="password" margin="normal" type="password" fullWidth variant="filled" label={'Password'} />
-					<Button type="submit" variant="contained" sx={{ mt: 3, mb: 2 }} fullWidth>
-						Confirm
-					</Button>
-					<Typography color="text.secondary" align="center" component="p" variant="body2">
-						Please enter data that will be set to use this tool.
-						<br />
-						Leave blank to use no password (NOT RECOMMENDED)!
-					</Typography>
-				</Box>
+			<Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', px: 2, py: 5 }}>
+				<Paper variant="outlined" sx={{ width: '100%', maxWidth: 550, p: { xs: 3, sm: 5 } }}>
+					<Avatar sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', mb: 3 }}><PowerSettingsNew /></Avatar>
+					<Typography variant="overline" color="text.secondary">First-time setup · Step 1 of 1</Typography>
+					<Typography variant="h4" sx={{ mb: 1 }}>Set up your workspace</Typography>
+					<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Choose a port and an optional server password. After restarting, you can connect multiple platforms from the sidebar.</Typography>
+					<Box component="form" onSubmit={(event) => void setup(event)}>
+						<Stack spacing={2}>
+							<TextField size="small" name="port" type="number" label="Local server port" fullWidth required defaultValue={3000} inputProps={{ min: 1, max: 65535 }} />
+							<TextField size="small" name="password" type="password" label="Server password (optional)" autoComplete="new-password" fullWidth helperText="Recommended if the server can be reached from other devices." />
+							<Button type="submit" variant="contained" fullWidth>Save configuration</Button>
+						</Stack>
+					</Box>
+					<Typography variant="caption" color="text.secondary" sx={{ mt: 3, display: 'block' }}>The server must be restarted after you save these settings. Platform credentials are configured separately.</Typography>
+				</Paper>
 			</Box>
 		);
 	}
