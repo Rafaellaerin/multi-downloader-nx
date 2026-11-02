@@ -58,7 +58,7 @@ class HidiveHandler extends Base implements MessageHandler {
 		if (isNaN(parse) || parse <= 0) return false;
 		console.debug(`Got resolve options: ${JSON.stringify(data)}`);
 		const res = await this.hidive.selectSeries(parseInt(data.id), data.e, data.but, data.all);
-		if (!res.isOk) throw res.reason;
+		if (!res.isOk) throw new Error('HIDIVE could not resolve this series. Check your account, region and show ID.');
 		if (!res.value?.length) return false;
 		this.addToQueue(
 			res.value.map((item) => {
