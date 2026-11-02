@@ -3,8 +3,8 @@ import {
 	Box, Button, Chip, Divider, Drawer, IconButton, Paper, Stack, Tooltip, Typography, useMediaQuery, useTheme
 } from '@mui/material';
 import {
-	AddRounded, ArrowForwardRounded, DashboardRounded, DarkModeOutlined, LightModeOutlined,
-	MenuRounded, SettingsOutlined, FolderOutlined, PlayArrowRounded, DeleteOutlineRounded,
+	ArrowForwardRounded, DashboardRounded, DarkModeOutlined, LightModeOutlined,
+	MenuRounded, SettingsOutlined, FolderOutlined, DeleteOutlineRounded,
 	DownloadRounded, LayersOutlined, CheckCircleOutlineRounded
 } from '@mui/icons-material';
 import AuthButton from './components/AuthButton';
