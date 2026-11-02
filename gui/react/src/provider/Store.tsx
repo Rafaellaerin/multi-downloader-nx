@@ -57,9 +57,16 @@ const STORAGE_KEY = 'anidl.gui.preferences.v2';
 
 const restored = (): StoreState => {
 	try {
-		const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') as Partial<StoreState>;
+		const savedV2 = localStorage.getItem(STORAGE_KEY);
+		const stored = JSON.parse(savedV2 || localStorage.getItem('anidl.gui.preferences.v1') || '{}') as Partial<StoreState>;
 		const service = (['crunchy', 'hidive', 'adn'] as string[]).includes(stored.service || '') ? stored.service : undefined;
-		const optionsByService = stored.optionsByService && typeof stored.optionsByService === 'object' ? stored.optionsByService : {};
+		const legacy = stored as Partial<StoreState>;
+		const optionsByService: Partial<Record<ServiceName, DownloadOptions>> =
+			stored.optionsByService && typeof stored.optionsByService === 'object'
+				? stored.optionsByService
+				: service && legacy.downloadOptions
+					? { [service]: { ...defaultOptions, ...legacy.downloadOptions } }
+					: {};
 		return {
 			...initialState,
 			service,
