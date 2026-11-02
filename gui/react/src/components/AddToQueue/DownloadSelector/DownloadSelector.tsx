@@ -217,6 +217,14 @@ const DownloadSelector: React.FC<DownloadSelectorProps> = ({ onFinish }) => {
 						control={<Checkbox size="small" checked={options.dlVideoOnce} onChange={(_, checked) => update({ dlVideoOnce: checked })} />}
 						label="Reuse downloaded video tracks"
 					/>
+					<FormControl size="small" sx={{ maxWidth: 320, mt: 1 }}>
+						<InputLabel id="hardsub-label">Hardsub language</InputLabel>
+						<Select labelId="hardsub-label" label="Hardsub language" value={options.hslang || 'none'}
+							onChange={(event) => update({ hslang: event.target.value })}>
+							<MenuItem value="none">No hardsubs</MenuItem>
+							{availableSubs.filter((code) => !['all', 'none'].includes(code)).map((code) => <MenuItem key={code} value={code}>{code}</MenuItem>)}
+						</Select>
+					</FormControl>
 					{store.service === 'hidive' && (
 						<FormControlLabel
 							control={<Checkbox size="small" checked={options.simul} onChange={(_, checked) => update({ simul: checked })} />}
