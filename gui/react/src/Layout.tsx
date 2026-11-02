@@ -47,7 +47,10 @@ const Layout: React.FC = () => {
 	const [mobileOpen, setMobileOpen] = React.useState(false);
 	const [version, setVersion] = React.useState('5.8.8');
 	React.useEffect(() => {
-		void msg?.version().then(setVersion).catch(() => undefined);
+		void msg
+			?.version()
+			.then(setVersion)
+			.catch(() => undefined);
 	}, [msg]);
 	const [page, setPage] = React.useState<'overview' | 'provider'>(() => (store.service ? 'provider' : 'overview'));
 	const [overview, setOverview] = React.useState<Record<ServiceName, ServiceOverview>>(empty);

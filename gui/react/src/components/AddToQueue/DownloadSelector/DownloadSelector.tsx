@@ -219,10 +219,15 @@ const DownloadSelector: React.FC<DownloadSelectorProps> = ({ onFinish }) => {
 					/>
 					<FormControl size="small" sx={{ maxWidth: 320, mt: 1 }}>
 						<InputLabel id="hardsub-label">Hardsub language</InputLabel>
-						<Select labelId="hardsub-label" label="Hardsub language" value={options.hslang || 'none'}
-							onChange={(event) => update({ hslang: event.target.value })}>
+						<Select labelId="hardsub-label" label="Hardsub language" value={options.hslang || 'none'} onChange={(event) => update({ hslang: event.target.value })}>
 							<MenuItem value="none">No hardsubs</MenuItem>
-							{availableSubs.filter((code) => !['all', 'none'].includes(code)).map((code) => <MenuItem key={code} value={code}>{code}</MenuItem>)}
+							{availableSubs
+								.filter((code) => !['all', 'none'].includes(code))
+								.map((code) => (
+									<MenuItem key={code} value={code}>
+										{code}
+									</MenuItem>
+								))}
 						</Select>
 					</FormControl>
 					{store.service === 'hidive' && (
