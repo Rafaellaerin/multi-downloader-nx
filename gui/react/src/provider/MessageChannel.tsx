@@ -94,6 +94,7 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 	const [store] = useStore();
 	const [socket, setSocket] = React.useState<undefined | WebSocket>();
 	const [serviceReady, setServiceReady] = React.useState(false);
+	const [connectionError, setConnectionError] = React.useState<string>();
 	const connecting = React.useRef(false);
 	const [publicWS, setPublicWS] = React.useState<undefined | WebSocket>();
 	const [usePassword, setUsePassword] = React.useState<'waiting' | 'yes' | 'no'>('waiting');
@@ -142,15 +143,18 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 		wws.addEventListener('open', () => {
 			console.log('[INFO] [WS] Connected');
 			setSocket(wws);
+			setConnectionError(undefined);
 			connecting.current = false;
 		});
 		wws.addEventListener('close', () => {
 			connecting.current = false;
 			setSocket((current) => (current === wws ? undefined : current));
 			setServiceReady(false);
+			setConnectionError('Connection closed. Restart the server or try again.');
 		});
 		wws.addEventListener('error', (er) => {
 			connecting.current = false;
+			setConnectionError('Could not reach the local server. Check that it is running.');
 			console.error('[ERROR] [WS]', er);
 			enqueueSnackbar('Unable to connect to server. Please check the password and try again.', {
 				variant: 'error'
@@ -207,8 +211,8 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 	}, [store.service, socket]);
 
 	React.useEffect(() => {
-		if (usePassword === 'no' && !socket && !connecting.current) connect();
-	}, [usePassword, socket]);
+		if (usePassword === 'no' && !socket && !connecting.current && !connectionError) connect();
+	}, [usePassword, socket, connectionError]);
 
 	React.useEffect(() => {
 		if (!socket) return;
@@ -273,12 +277,16 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 	}
 
 	if (socket === undefined) {
-		if (usePassword === 'no')
+		if (usePassword === 'no') {
 			return (
-				<Box sx={{ minHeight: '80vh', display: 'grid', placeItems: 'center' }}>
-					<Typography color="text.secondary">Starting the local service…</Typography>
+				<Box sx={{ minHeight: '80vh', display: 'grid', placeItems: 'center', px: 2 }}>
+					<Stack alignItems="center" spacing={2}>
+						<Typography color="text.secondary">{connectionError || 'Connecting to the local service…'}</Typography>
+						{connectionError && <Button variant="contained" onClick={() => { setConnectionError(undefined); connect(); }}>Retry connection</Button>}
+					</Stack>
 				</Box>
 			);
+		}
 		return (
 			<Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', px: 2, py: 5 }}>
 				<Paper variant="outlined" sx={{ width: '100%', maxWidth: 460, p: { xs: 3, sm: 5 } }}>
@@ -289,6 +297,7 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 					<Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 3 }}>
 						Enter the password you configured for this local server.
 					</Typography>
+					{connectionError && <Typography variant="body2" color="error" sx={{ mb: 2 }}>{connectionError}</Typography>}
 					<Box component="form" onSubmit={connect}>
 						<TextField name="password" label="Server password" size="small" type="password" autoComplete="current-password" fullWidth required />
 						<Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
