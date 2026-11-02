@@ -10,6 +10,7 @@ export type RandomEvents = {
 };
 
 export interface RandomEvent<T extends keyof RandomEvents> {
+	service?: ServiceName;
 	name: T;
 	data: RandomEvents[T];
 }
