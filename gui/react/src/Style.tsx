@@ -28,7 +28,7 @@ const makeTheme = (mode: ColorMode) => createTheme({
 	},
 	components: {
 		MuiCssBaseline: { styleOverrides: { body: { margin: 0 }, '*': { boxSizing: 'border-box' } } },
-		MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' }, outlined: { borderColor: 'inherit' } } },
+		MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' }, outlined: { borderColor: mode === 'dark' ? '#303030' : '#e7e7e7' } } },
 		MuiButton: { defaultProps: { disableElevation: true }, styleOverrides: { root: { borderRadius: 10, paddingInline: 18, minHeight: 39 } } },
 		MuiOutlinedInput: { styleOverrides: { root: { borderRadius: 10 } } },
 		MuiDialog: { styleOverrides: { paper: { border: '1px solid', borderColor: mode === 'dark' ? '#373737' : '#dedede', maxWidth: 'min(96vw, 960px)' } } },
