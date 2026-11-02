@@ -411,7 +411,10 @@ export default class Crunchy implements ServiceClass {
 		this.token.device_id = uuid;
 		this.token.expires = new Date(Date.now() + this.token.expires_in * 1000);
 		yamlCfg.saveCRToken(this.token);
+		// Discard anonymous CMS credentials before initializing this user session.
+		this.cmsToken = {};
 		await this.getProfile();
+		await this.getCMStoken(true);
 		console.info('Your Country: %s', this.token.country);
 		return { isOk: true, value: undefined };
 	}
