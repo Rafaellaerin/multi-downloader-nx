@@ -98,8 +98,13 @@ export default class ServiceHandler {
 
 		this.ws.events.on('listEpisodes', async ({ data, service }, respond) => respond(await this.serviceFor(service).listEpisodes(data)));
 		this.ws.events.on('downloadItem', async ({ data, service }, respond) => {
-			// Do not hold the websocket response open for an entire download.
-			void this.serviceFor(service).downloadItem(data);
+			const handler = this.serviceFor(service);
+			// A direct download should not block a websocket request for hours.
+			void Promise.resolve().then(() => handler.downloadItem(data)).catch((error) => {
+				handler.alertError(error instanceof Error ? error : new Error(String(error)));
+				handler.setDownloading(false);
+				void handler.onFinish();
+			});
 			respond(undefined);
 		});
 		this.ws.events.on('openFolder', async ({ data, service }, respond) => {
