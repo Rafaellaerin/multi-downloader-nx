@@ -45,6 +45,10 @@ const Layout: React.FC = () => {
 	const theme = useTheme();
 	const narrow = useMediaQuery(theme.breakpoints.down('md'));
 	const [mobileOpen, setMobileOpen] = React.useState(false);
+	const [version, setVersion] = React.useState('5.8.8');
+	React.useEffect(() => {
+		void msg?.version().then(setVersion).catch(() => undefined);
+	}, [msg]);
 	const [page, setPage] = React.useState<'overview' | 'provider'>(() => (store.service ? 'provider' : 'overview'));
 	const [overview, setOverview] = React.useState<Record<ServiceName, ServiceOverview>>(empty);
 
@@ -109,7 +113,7 @@ const Layout: React.FC = () => {
 						Multi Downloader
 					</Typography>
 					<Typography variant="caption" color="text.secondary">
-						NX · v5.8.8
+						NX · v{version}
 					</Typography>
 				</Box>
 			</Stack>
