@@ -85,6 +85,7 @@ class CrunchyHandler extends Base implements MessageHandler {
 	}
 
 	public async checkToken(): Promise<CheckTokenResponse> {
+		await this.crunchy.refreshToken(true);
 		if (await this.crunchy.getProfile()) {
 			return { isOk: true, value: undefined };
 		} else {
