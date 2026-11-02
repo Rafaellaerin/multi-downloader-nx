@@ -282,7 +282,17 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 				<Box sx={{ minHeight: '80vh', display: 'grid', placeItems: 'center', px: 2 }}>
 					<Stack alignItems="center" spacing={2}>
 						<Typography color="text.secondary">{connectionError || 'Connecting to the local service…'}</Typography>
-						{connectionError && <Button variant="contained" onClick={() => { setConnectionError(undefined); connect(); }}>Retry connection</Button>}
+						{connectionError && (
+							<Button
+								variant="contained"
+								onClick={() => {
+									setConnectionError(undefined);
+									connect();
+								}}
+							>
+								Retry connection
+							</Button>
+						)}
 					</Stack>
 				</Box>
 			);
@@ -297,7 +307,11 @@ const MessageChannelProvider: FCWithChildren = ({ children }) => {
 					<Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 3 }}>
 						Enter the password you configured for this local server.
 					</Typography>
-					{connectionError && <Typography variant="body2" color="error" sx={{ mb: 2 }}>{connectionError}</Typography>}
+					{connectionError && (
+						<Typography variant="body2" color="error" sx={{ mb: 2 }}>
+							{connectionError}
+						</Typography>
+					)}
 					<Box component="form" onSubmit={connect}>
 						<TextField name="password" label="Server password" size="small" type="password" autoComplete="current-password" fullWidth required />
 						<Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
